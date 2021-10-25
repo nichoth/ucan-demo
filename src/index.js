@@ -68,6 +68,25 @@ function TheApp () {
 
     // here the user needs to submit their DID and also the invitation code
     function submitInv ({ code, id }) {
+        if (code === 'bad') {
+            return Promise.all(users.map(async user => {
+                if (user.keys.did() !== id) return Promise.resolve(user)
+
+                return ucan.build({
+                    audience: user.keys.did(),
+                    issuer: serverKey,
+                    capabilities: [{
+                        foo: 'barrr'
+                    }],
+                    proof: ucan.encode(serverUcan)
+                })
+                    .then(_ucan => {
+                        user.ucan = _ucan
+                        return user
+                    })
+            })).then(users => setUsers(users))
+        }
+
         // check that the invitation code is valid
         if (!serverInvitations.includes(code)) return
 
@@ -85,7 +104,8 @@ function TheApp () {
                             "country-club": "country-club", // what is this?
                             "cap": "member"
                         }
-                    ]
+                    ],
+                    proof: ucan.encode(serverUcan)
                 })
                     .then(ucan => {
                         user.ucan = ucan
@@ -103,7 +123,6 @@ function TheApp () {
     function createInv (ev) {
         ev.preventDefault()
         var inv = Math.random().toString(36).slice(2)
-        console.log('random code', inv)
         setServerInvitations(serverInvitations.concat([inv]))
     }
 
@@ -123,19 +142,18 @@ function TheApp () {
                 </ul>
 
                 <h2>members</h2>
-                <ul>
+                <ul class="member-list">
                     ${users.map(u => {
-                        if (u.ucan) {
-                            var isVal = ucan.isValid(u.ucan)
-                            return html`<li>
-                                <${User}
-                                    isValid=${isVal}
-                                    username=${u.username}
-                                    id=${u.keys && u.keys.did()}
-                                    ucan=${u.ucan}
-                                />
-                            </li>`
-                        }
+                        if (!u.ucan) return null
+                        var isVal = ucan.isValid(u.ucan)
+                        return html`<li class="user">
+                            <${User}
+                                isValid=${isVal}
+                                username=${u.username}
+                                id=${u.keys && u.keys.did()}
+                                ucan=${u.ucan}
+                            />
+                        </li>`
                     })}
                 </ul>
             </div>
@@ -144,13 +162,14 @@ function TheApp () {
         <h2>users</h2>
         <ul class="user-list">
             ${users.map((user) => {
+                if (user.ucan) return null
                 const { username, keys } = user
                 if (!user.ucan) {
-                    return html`<${User}
+                    return html`<li class="user"><${User}
                         id=${keys && keys.did()}
                         username=${username}
                         redeemInvitation=${submitInv}
-                    />`
+                    /></li>`
                 }
             })}
         </ul>
@@ -172,7 +191,12 @@ function TheApp () {
 
 function User (props) {
     const { id, username } = props
-    var isMember = (props.ucan && ucan.isValid(props.ucan))
+    var isMember = props.ucan
+    var isValid = (props.ucan && ucan.isValid(props.ucan))
+
+    var [valid, setValid] = useState(null)
+
+    if (isValid) isValid.then(val => setValid(val))
 
     function redeemInv (ev) {
         ev.preventDefault()
@@ -180,26 +204,27 @@ function User (props) {
         props.redeemInvitation({ code: invCode, id })
     }
 
-    return html`<li class="user">
+    return html`<div>
         <div class="user-name">
-            ${isMember ? ('✅ ' + username) : username}
+            ${(isMember && valid) ?
+                ('✅ ' + username) :
+                (isMember && !valid) ? '❌ ' + username : username
+            }
         </div>
         <div class="user-id">
             ${id}
         </div>
 
-        ${isMember ?
-            html`<div class="btns">
-                <button>create invitation</button>
-            </div>` :
+        ${!isMember ?
             html`<div class="btns">
                 <form onSubmit=${redeemInv}>
                     <input name="invitation" type="text" />
                     <button type="submit">redeem invitation</button>
                 </form>
-            </div>`
+            </div>` :
+            null
         }
-    </li>`
+    </div>`
 }
 
 render(html`<${TheApp} />`, document.getElementById('content'))
