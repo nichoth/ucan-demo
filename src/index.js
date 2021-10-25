@@ -202,6 +202,9 @@ function User (props) {
         props.redeemInvitation({ code: invCode, id })
     }
 
+    var invalidMember = props.ucan && !valid
+    console.log('inv member', invalidMember)
+
     return html`<div>
         <div class="user-name">
             ${
@@ -210,6 +213,15 @@ function User (props) {
                     username
             }
         </div>
+
+        ${invalidMember ?
+            html`<p>
+                This member is not valid
+                <pre>${JSON.stringify(props.ucan, null, 2)}</pre>
+            </p>` :
+            null
+        }
+
         <div class="user-id">
             ${id}
         </div>
