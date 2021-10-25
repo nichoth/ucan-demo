@@ -68,9 +68,13 @@ function TheApp () {
 
     // here the user needs to submit their DID and also the invitation code
     function submitInv ({ code, id }) {
+        // check that the invitation code is valid
+        if (!serverInvitations.includes(code)) return
+
         // in here we create a ucan for the given user
         Promise.all(
             users.map(async user => {
+                // only change the user this invitation is being submitted by
                 if (user.keys.did() !== id) return Promise.resolve(user)
 
                 return ucan.build({
