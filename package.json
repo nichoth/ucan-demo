@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "preact": "^10.5.15",
+    "ucans": "^0.7.8"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0",
+    "budo": "^11.6.4",
+    "concurrently": "^6.3.0",
+    "sass": "^1.43.3"
+  }
+}
