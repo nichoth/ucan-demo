@@ -1,20 +1,26 @@
 import { render } from 'preact'
 import { html } from 'htm/preact'
+import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
 
-console.log('ucan', ucan)
-console.log('ucan keytype', ucan.KeyType)
-
 const users = ['alice', 'bob', 'carol']
-var keyPairs = users.map(() => {
-    return ucan.keypair.create(ucan.KeyType.Edwards)
-})
 
 function TheApp () {
+    var [keys, setKeys] = useState([])
+    useEffect(() => {
+        Promise.all(users.map(() => {
+            return ucan.keypair.create(ucan.KeyType.Edwards)
+        }))
+            .then(_keys => setKeys(_keys))
+    }, [])
+
     return html`<div>
         <ul class="user-list">
             ${users.map((name, i) => {
-                return html`<${User} id=${keyPairs[i]} name="${name}" />`
+                return html`<${User}
+                    id=${keys[i] && keys[i].did()}
+                    name="${name}"
+                />`
             })}
         </ul>
     </div>`
@@ -22,7 +28,7 @@ function TheApp () {
 
 
 function User ({ id, name }) {
-    return html`<li class="user">${name} ${id}</li>`
+    return html`<li class="user">${name} -- ${id}</li>`
 }
 
 render(html`<${TheApp} />`, document.getElementById('content'))

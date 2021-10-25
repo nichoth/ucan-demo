@@ -10,21 +10,20 @@
     "build": "npm run build-js && npm run sass-build",
     "sass-build": "sass src/style/index.scss public/style.css",
     "sass-watch": "sass --watch src/style/index.scss public/style.css",
-    "build-js": "browserify -p esmify -t uglifyify --debug src/index.js > public/bundle.js",
+    "build-js": "browserify -p esmify  --debug src/index.js > public/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "htm": "^3.1.0",
     "preact": "^10.5.15",
-    "ucans": "^0.7.8"
+    "ucans": "0.7.2"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
     "budo": "^11.6.4",
     "concurrently": "^6.3.0",
     "esmify": "^2.1.1",
-    "sass": "^1.43.3",
-    "uglifyify": "^5.0.2"
+    "sass": "^1.43.3"
   },
   "repository": {
     "type": "git",
