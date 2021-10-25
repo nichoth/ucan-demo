@@ -45,7 +45,12 @@ function TheApp () {
 
 
 function User ({ id, name }) {
-    return html`<li class="user">${name} -- ${id}</li>`
+    return html`<li class="user">
+        ${name} -- ${id}
+        <div class="btns">
+            <button>create invitation</button>
+        </div>
+    </li>`
 }
 
 render(html`<${TheApp} />`, document.getElementById('content'))
