@@ -47,12 +47,17 @@ function TheApp () {
     }, [])
 
     useEffect(() => {
-        Promise.all(['alice', 'bob', 'carol'].map((name) => {
+        Promise.all(['alice', 'bob', 'carol'].map((username) => {
             return ucan.keypair.create(ucan.KeyType.Edwards)
-                .then((kp) => ({ name, keys: kp }))
+                .then((kp) => ({ username, keys: kp }))
         }))
             .then(_users => setUsers(_users))
     }, [])
+
+    console.log('users', users)
+
+    // need to create a ucan for each user
+    // iff they are a member 
 
     return html`<div>
         <h1>The country club</h1>
@@ -60,16 +65,27 @@ function TheApp () {
             <div class="server-info">
                 <h2>server ID</h2>
                 <pre>${serverKey && serverKey.did()}</pre>
+                <h2>members</h2>
+                <ul>
+                    ${users.map(u => {
+                        if (u.ucan) {
+                            var isVal = ucan.isValid(u.ucan)
+                        }
+                    })}
+                </ul>
             </div>
         </div>
 
         <h2>users</h2>
         <ul class="user-list">
-            ${users.map(({ name, keys }) => {
-                return html`<${User}
-                    id=${keys && keys.did()}
-                    name="${name}"
-                />`
+            ${users.map((user) => {
+                const { username, keys } = user
+                if (!user.ucan) {
+                    return html`<${User}
+                        id=${keys && keys.did()}
+                        username=${username}
+                    />`
+                }
             })}
         </ul>
     </div>`
@@ -88,14 +104,16 @@ function TheApp () {
 //    at the root it was signed with the server keys
 
 
-function User ({ id, name }) {
+function User (props) {
+    const { id, username } = props
     return html`<li class="user">
         <div class="user-name">
-            ${name}
+            ${username}
         </div>
         <div class="user-id">
             ${id}
         </div>
+
         <div class="btns">
             <button>create invitation</button>
         </div>
