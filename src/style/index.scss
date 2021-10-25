@@ -9,9 +9,13 @@ body {
     justify-content: space-around;
 }
 
+h2 {
+    border-bottom: 1px solid #000;
+}
+
 .user {
     border: 1px solid;
     padding: 1rem;
     overflow-wrap: anywhere;
-    margin: 1rem;
+    width: 25%;
 }
