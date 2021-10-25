@@ -191,11 +191,9 @@ function TheApp () {
 
 function User (props) {
     const { id, username } = props
-    var isMember = props.ucan
-    var isValid = (props.ucan && ucan.isValid(props.ucan))
-
+    // this got a little wonky b/c ucan.isValid is async
     var [valid, setValid] = useState(null)
-
+    var isValid = (props.ucan && ucan.isValid(props.ucan))
     if (isValid) isValid.then(val => setValid(val))
 
     function redeemInv (ev) {
@@ -206,21 +204,29 @@ function User (props) {
 
     return html`<div>
         <div class="user-name">
-            ${(isMember && valid) ?
-                ('✅ ' + username) :
-                (isMember && !valid) ? '❌ ' + username : username
+            ${
+                props.ucan ?
+                    (valid ? ('✅ ' + username) : ('❌ ' + username)) :
+                    username
             }
         </div>
         <div class="user-id">
             ${id}
         </div>
 
-        ${!isMember ?
+        ${!props.ucan ?
             html`<div class="btns">
                 <form onSubmit=${redeemInv}>
                     <input name="invitation" type="text" />
                     <button type="submit">redeem invitation</button>
                 </form>
+                <p>
+                    Enter an invitation code from above. Or enter the
+                    word <code>'bad'</code>, which will create an invitation
+                    with invalid capabilities, to simulate the situation
+                    of someone creating their own UCAN with greater
+                    priviledges than the UCAN that issued their permissions
+                </p>
             </div>` :
             null
         }
