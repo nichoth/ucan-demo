@@ -1,12 +1,41 @@
 {
+  "name": "ucan-demo",
+  "description": "",
+  "version": "0.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "copy": "cp src/index.html public",
+    "start": "rm -rf public/* && npm run copy && npm run build && concurrently --kill-others \"npm run serve\" \"npm run sass-watch\"",
+    "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -p common-shakeify -dv",
+    "build": "npm run build-js && npm run sass-build",
+    "sass-build": "sass src/style/index.scss public/style.css",
+    "sass-watch": "sass --watch src/style/index.scss public/style.css",
+    "build-js": "browserify -p esmify -p common-shakeify -t unassertify -t uglifyify --debug src/index.js > public/bundle.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
+    "htm": "^3.1.0",
     "preact": "^10.5.15",
     "ucans": "^0.7.8"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
     "budo": "^11.6.4",
+    "common-shakeify": "^0.6.2",
     "concurrently": "^6.3.0",
-    "sass": "^1.43.3"
-  }
+    "esmify": "^2.1.1",
+    "sass": "^1.43.3",
+    "uglifyify": "^5.0.2",
+    "unassertify": "^2.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nichoth/ucan-demo.git"
+  },
+  "author": "Nick Thomas <nichoth@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nichoth/ucan-demo/issues"
+  },
+  "homepage": "https://github.com/nichoth/ucan-demo#readme"
 }
