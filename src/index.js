@@ -2,8 +2,9 @@ import { render } from 'preact'
 import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
+import { isValid } from 'ucans'
 // import { toString } from 'uint8arrays/to-string'
-
+// import { fromString, toString } from 'uint8arrays'
 
 function TheApp () {
     // a list like
@@ -11,6 +12,7 @@ function TheApp () {
     const [users, setUsers] = useState([])
     const [serverKey, setServerKey] = useState(null)
     const [serverUcan, setServerUcan] = useState(null)
+    const [serverInvitations, setServerInvitations] = useState([])
 
     useEffect(() => {
         // we are keeping a keypair that the server uses to create
@@ -18,7 +20,8 @@ function TheApp () {
         // then all the users have a ucan derived from this one
         ucan.keypair.create(ucan.KeyType.Edwards)
             .then(async kp => {
-                console.log('server keypair', kp, kp.did())
+                console.log('server keypair', kp)
+                console.log('server did', kp.did())
                 setServerKey(kp)
 
                 const u = await ucan.build({
@@ -26,6 +29,11 @@ function TheApp () {
                     issuer: kp, // signing key
                     capabilities: [ // permissions for ucan
                         {
+                            "country-club": "country-club",
+                            "cap": "member"
+                        },
+                        {
+                            // what is this? (the `wnfs` key)
                             "wnfs": "boris.fission.name/public/photos/",
                             "cap": "OVERWRITE"
                         },
@@ -43,7 +51,6 @@ function TheApp () {
                 console.log('server ucan', u)
                 setServerUcan(u)
             })
-
     }, [])
 
     useEffect(() => {
@@ -54,10 +61,47 @@ function TheApp () {
             .then(_users => setUsers(_users))
     }, [])
 
-    console.log('users', users)
+    console.log('render -- ', 'users', users)
 
     // need to create a ucan for each user
     // iff they are a member 
+
+    // here the user needs to submit their DID and also the invitation code
+    function submitInv ({ code, id }) {
+        // in here we create a ucan for the given user
+        Promise.all(
+            users.map(async user => {
+                if (user.keys.did() !== id) return Promise.resolve(user)
+
+                return ucan.build({
+                    audience: user.keys.did(),
+                    issuer: serverKey, // signing key
+                    capabilities: [ // permissions for ucan
+                        {
+                            "country-club": "country-club", // what is this?
+                            "cap": "member"
+                        }
+                    ]
+                })
+                    .then(ucan => {
+                        user.ucan = ucan
+                        return user
+                    })
+            })
+        )
+            .then(users => {
+                setUsers(users)
+            })
+    }
+
+    // in real life these could be random strings that are hashed with
+    // `bcrypt` and saved in a DB
+    function createInv (ev) {
+        ev.preventDefault()
+        var inv = Math.random().toString(36).slice(2)
+        console.log('random code', inv)
+        setServerInvitations(serverInvitations.concat([inv]))
+    }
 
     return html`<div>
         <h1>The country club</h1>
@@ -65,11 +109,28 @@ function TheApp () {
             <div class="server-info">
                 <h2>server ID</h2>
                 <pre>${serverKey && serverKey.did()}</pre>
+
+                <h2>invitations</h2>
+                <button onclick="${createInv}">create an invitation</button>
+                <ul>
+                    ${serverInvitations.map(inv => {
+                        return html`<li>${inv}</li>`
+                    })}
+                </ul>
+
                 <h2>members</h2>
                 <ul>
                     ${users.map(u => {
                         if (u.ucan) {
                             var isVal = ucan.isValid(u.ucan)
+                            return html`<li>
+                                <${User}
+                                    isValid=${isVal}
+                                    username=${u.username}
+                                    id=${u.keys && u.keys.did()}
+                                    ucan=${u.ucan}
+                                />
+                            </li>`
                         }
                     })}
                 </ul>
@@ -84,6 +145,7 @@ function TheApp () {
                     return html`<${User}
                         id=${keys && keys.did()}
                         username=${username}
+                        redeemInvitation=${submitInv}
                     />`
                 }
             })}
@@ -106,17 +168,33 @@ function TheApp () {
 
 function User (props) {
     const { id, username } = props
+    var isMember = (props.ucan && ucan.isValid(props.ucan))
+
+    function redeemInv (ev) {
+        ev.preventDefault()
+        var invCode = ev.target.elements.invitation.value
+        props.redeemInvitation({ code: invCode, id })
+    }
+
     return html`<li class="user">
         <div class="user-name">
-            ${username}
+            ${isMember ? ('✅ ' + username) : username}
         </div>
         <div class="user-id">
             ${id}
         </div>
 
-        <div class="btns">
-            <button>create invitation</button>
-        </div>
+        ${isMember ?
+            html`<div class="btns">
+                <button>create invitation</button>
+            </div>` :
+            html`<div class="btns">
+                <form onSubmit=${redeemInv}>
+                    <input name="invitation" type="text" />
+                    <button type="submit">redeem invitation</button>
+                </form>
+            </div>`
+        }
     </li>`
 }
 
