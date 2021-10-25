@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "main": "src/index.js",
   "scripts": {
-    "copy": "cp src/index.html public",
+    "copy": "mkdir -p ./public && cp src/index.html public/index.html",
     "start": "rm -rf public/* && npm run copy && npm run build && concurrently --kill-others \"npm run serve\" \"npm run sass-watch\"",
     "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -dv",
     "build": "npm run build-js && npm run sass-build",
