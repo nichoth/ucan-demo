@@ -2,11 +2,49 @@ import { render } from 'preact'
 import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
+// import { toString } from 'uint8arrays/to-string'
+
 
 function TheApp () {
     // a list like
     // [ { name, keys } ]
-    var [users, setUsers] = useState([])
+    const [users, setUsers] = useState([])
+    const [serverKey, setServerKey] = useState(null)
+    const [serverUcan, setServerUcan] = useState(null)
+
+    useEffect(() => {
+        // we are keeping a keypair that the server uses to create
+        // it's own ucan in this model
+        // then all the users have a ucan derived from this one
+        ucan.keypair.create(ucan.KeyType.Edwards)
+            .then(async kp => {
+                console.log('server keypair', kp, kp.did())
+                setServerKey(kp)
+
+                const u = await ucan.build({
+                    audience: kp.did(), // recipient
+                    issuer: kp, // signing key
+                    capabilities: [ // permissions for ucan
+                        {
+                            "wnfs": "boris.fission.name/public/photos/",
+                            "cap": "OVERWRITE"
+                        },
+                        {
+                            "wnfs": "boris.fission.name/private/4tZA6S61BSXygmJGGW885odfQwpnR2UgmCaS5CfCuWtEKQdtkRnvKVdZ4q6wBXYTjhewomJWPL2ui3hJqaSodFnKyWiPZWLwzp1h7wLtaVBQqSW4ZFgyYaJScVkBs32BThn6BZBJTmayeoA9hm8XrhTX4CGX5CVCwqvEUvHTSzAwdaR",
+                            "cap": "APPEND"
+                        },
+                        {
+                            "email": "boris@fission.codes",
+                            "cap": "SEND"
+                        }
+                    ]
+                })
+
+                console.log('server ucan', u)
+                setServerUcan(u)
+            })
+
+    }, [])
 
     useEffect(() => {
         Promise.all(['alice', 'bob', 'carol'].map((name) => {
@@ -18,6 +56,12 @@ function TheApp () {
 
     return html`<div>
         <h1>The country club</h1>
+        <div class="the-club">
+            <div class="server-info">
+                <h2>server ID</h2>
+                <pre>${serverKey && serverKey.did()}</pre>
+            </div>
+        </div>
 
         <h2>users</h2>
         <ul class="user-list">
@@ -46,7 +90,12 @@ function TheApp () {
 
 function User ({ id, name }) {
     return html`<li class="user">
-        ${name} -- ${id}
+        <div class="user-name">
+            ${name}
+        </div>
+        <div class="user-id">
+            ${id}
+        </div>
         <div class="btns">
             <button>create invitation</button>
         </div>

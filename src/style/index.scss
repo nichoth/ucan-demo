@@ -2,6 +2,12 @@ body {
     background-color: pink;
 }
 
+.the-club {
+    border: 1px solid;
+    height: 40vh;
+    padding: 1rem;
+}
+
 .user-list {
     list-style: none;
     display: flex;
@@ -18,7 +24,7 @@ button {
 }
 
 .btns {
-    margin-top: 1rem;
+    margin-top: 2rem;
 }
 
 .user {
@@ -26,4 +32,7 @@ button {
     padding: 1rem;
     overflow-wrap: anywhere;
     width: 25%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
