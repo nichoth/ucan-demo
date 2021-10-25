@@ -2,8 +2,16 @@ body {
     background-color: pink;
 }
 
+.user-list {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    justify-content: space-around;
+}
+
 .user {
     border: 1px solid;
     padding: 1rem;
-    margin-bottom: 1rem;
+    overflow-wrap: anywhere;
+    margin: 1rem;
 }
