@@ -286,7 +286,7 @@ function User (props) {
     if (props.ucan) {
         ucan.isValid(props.ucan).then(val => {
             var root = ucan.rootIssuer(ucan.encode(props.ucan))
-            setValid(val && root === serverDID)
+            setValid(val && (root === serverDID))
         })
     }
 
