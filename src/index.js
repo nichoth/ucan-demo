@@ -256,7 +256,7 @@ function TheApp () {
         <p>
             Or enter the word <code>'bad'</code>, which will create a UCAN
             with invalid capabilities, to simulate the situation
-            of creating a UCAN with greater priviledges than the
+            of creating a UCAN with greater privileges than the
             'parent' UCAN that issued the permissions.
         </p>
         <p>
