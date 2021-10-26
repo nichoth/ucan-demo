@@ -127,8 +127,6 @@ function TheApp () {
     }
 
     return html`<div>
-        <h1>The country club</h1>
-
         <p>
             The thing about country clubs is that you need to be invited by
             someone who is already a member.
@@ -164,6 +162,8 @@ function TheApp () {
             So the 'capabilities' key must have a subset of the parent; it 
             can't have anything not in the parent.
         </p>
+
+        <h1>The country club</h1>
 
         <div class="the-club">
             <div class="server-info">
