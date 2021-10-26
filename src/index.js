@@ -2,8 +2,6 @@ import { render } from 'preact'
 import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
-// import { toString } from 'uint8arrays/to-string'
-// import { fromString, toString } from 'uint8arrays'
 
 function TheApp () {
     // a list like

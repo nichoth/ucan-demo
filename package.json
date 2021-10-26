@@ -16,8 +16,7 @@
   "dependencies": {
     "htm": "^3.1.0",
     "preact": "^10.5.15",
-    "ucans": "0.7.2",
-    "uint8arrays": "^3.0.0"
+    "ucans": "0.7.2"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
