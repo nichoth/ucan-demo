@@ -84,6 +84,28 @@ function TheApp () {
             })).then(users => setUsers(users))
         }
 
+        if (code === 'bad, root') {
+            return Promise.all(users.map(async user => {
+                if (user.keys.did() !== id) return Promise.resolve(user)
+
+                return ucan.build({
+                    audience: user.keys.did(),
+                    issuer: user.keys,
+                    capabilities: [ // permissions for ucan
+                        {
+                            "country-club": "country-club", // what is this?
+                            "cap": "member"
+                        }
+                    ],
+                    proof: ucan.encode(serverUcan)
+                })
+                    .then(_ucan => {
+                        user.ucan = _ucan
+                        return user
+                    })
+            })).then(users => setUsers(users))
+        }
+
         // check that the invitation code is valid
         if (!serverInvitations.includes(code)) return
 
@@ -194,6 +216,7 @@ function TheApp () {
                         if (!u.ucan) return null
                         return html`<li class="user">
                             <${User}
+                                serverDID=${serverKey && serverKey.did()}
                                 username=${u.username}
                                 id=${u.keys && u.keys.did()}
                                 ucan=${u.ucan}
@@ -218,6 +241,7 @@ function TheApp () {
                 const { username, keys } = user
                 if (!user.ucan) {
                     return html`<li class="user"><${User}
+                        serverDID=${serverKey && serverKey.did()}
                         id=${keys && keys.did()}
                         username=${username}
                         redeemInvitation=${submitInv}
@@ -225,6 +249,22 @@ function TheApp () {
                 }
             })}
         </ul>
+
+        <p>
+            Enter an invitation code from above.
+        </p>
+        <p>
+            Or enter the word <code>'bad'</code>, which will create a UCAN
+            with invalid capabilities, to simulate the situation
+            of creating a UCAN with greater priviledges than the
+            'parent' UCAN that issued the permissions.
+        </p>
+        <p>
+            Or enter the code <code>'bad, root'</code>, this will create a 
+            UCAN that is valid and has valid permissions, but it is
+            self-signed, and the UCAN must be signed by the server to be 
+            valid.
+        </p>
     </div>`
 }
 
@@ -240,12 +280,14 @@ function TheApp () {
 // * on bob requests, the server needs to check their UCAN and verify that
 //    at the root it was signed with the server keys
 
-
 function User (props) {
-    const { id, username } = props
+    const { id, username, serverDID } = props
     var [valid, setValid] = useState(null)
     if (props.ucan) {
-        ucan.isValid(props.ucan).then(val => setValid(val))
+        ucan.isValid(props.ucan).then(val => {
+            var root = ucan.rootIssuer(ucan.encode(props.ucan))
+            setValid(val && root === serverDID)
+        })
     }
 
     function redeemInv (ev) {
@@ -255,7 +297,6 @@ function User (props) {
     }
 
     var invalidMember = props.ucan && !valid
-    console.log('inv member', invalidMember)
 
     return html`<div>
         <div class="user-name">
@@ -284,13 +325,6 @@ function User (props) {
                     <input name="invitation" type="text" />
                     <button type="submit">redeem invitation</button>
                 </form>
-                <p>
-                    Enter an invitation code from above. Or enter the
-                    word <code>'bad'</code>, which will create a UCAN
-                    with invalid capabilities, to simulate the situation
-                    of creating a UCAN with greater priviledges than the
-                    'parent' UCAN that issued the permissions.
-                </p>
             </div>` :
             null
         }
