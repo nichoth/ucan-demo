@@ -2,6 +2,13 @@ body {
     background-color: pink;
 }
 
+p {
+    margin: 1rem;
+    margin-left: 2rem;
+    line-height: 1.4rem;
+    max-width: 40rem;
+}
+
 .the-club {
     border: 1px solid;
     min-height: 40vh;

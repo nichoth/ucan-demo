@@ -128,6 +128,43 @@ function TheApp () {
 
     return html`<div>
         <h1>The country club</h1>
+
+        <p>
+            The thing about country clubs is that you need to be invited by
+            someone who is already a member.
+        </p>
+
+        <p>
+            We are using an invitation code here. This code would be sent 
+            to the server along with the new user's DID. The server can then
+            create a UCAN for this DID. Here we are using a server-owned UCAN 
+            as the 'parent' for the new UCAN we are creating. But in real-life
+            it could be better to just keep a list of DIDs that are allowed
+            to use this server. That way you don't have to store a keypair
+            for this server anywhere (it's always better to not risk losing 
+            a key because you don't even have a key.)
+        </p>
+
+        <p>
+            Creating an invitation code is nice because it could be just
+            emailed to a new user and placed in a query parameter in a link
+            that the new user clicks on. It seems like you would want to use 
+            the UCAN of the user that is inviting a new user as the 'proof' 
+            field in a new UCAN, however that's more difficult because the 
+            existing user would need to know a DID for the new user, and we 
+            have no way of doing that since the new user may have never
+            visited this website before, and we don't want the server to ever
+            be able to see the private key of a new user.
+        </p>
+
+        <p>
+            UCANs allow you to use an existing UCAN as 'proof' for the new 
+            UCAN you are creating. That means that the child UCAN can only
+            have permissions that are equal or lesser than the parent UCAN.
+            So the 'capabilities' key must have a subset of the parent; it 
+            can't have anything not in the parent.
+        </p>
+
         <div class="the-club">
             <div class="server-info">
                 <h2>server ID</h2>
