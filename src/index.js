@@ -286,10 +286,10 @@ function User (props) {
                 </form>
                 <p>
                     Enter an invitation code from above. Or enter the
-                    word <code>'bad'</code>, which will create an invitation
+                    word <code>'bad'</code>, which will create a UCAN
                     with invalid capabilities, to simulate the situation
-                    of someone creating their own UCAN with greater
-                    priviledges than the UCAN that issued their permissions
+                    of creating a UCAN with greater priviledges than the
+                    'parent' UCAN that issued the permissions.
                 </p>
             </div>` :
             null
