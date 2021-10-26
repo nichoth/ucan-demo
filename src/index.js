@@ -192,10 +192,8 @@ function TheApp () {
                 <ul class="member-list">
                     ${users.map(u => {
                         if (!u.ucan) return null
-                        var isVal = ucan.isValid(u.ucan)
                         return html`<li class="user">
                             <${User}
-                                isValid=${isVal}
                                 username=${u.username}
                                 id=${u.keys && u.keys.did()}
                                 ucan=${u.ucan}
@@ -238,10 +236,10 @@ function TheApp () {
 
 function User (props) {
     const { id, username } = props
-    // this got a little wonky b/c ucan.isValid is async
     var [valid, setValid] = useState(null)
-    var isValid = (props.ucan && ucan.isValid(props.ucan))
-    if (isValid) isValid.then(val => setValid(val))
+    if (props.ucan) {
+        ucan.isValid(props.ucan).then(val => setValid(val))
+    }
 
     function redeemInv (ev) {
         ev.preventDefault()
