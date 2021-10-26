@@ -204,6 +204,13 @@ function TheApp () {
             </div>
         </div>
 
+        <p>
+            This is all running in client-side JS, but not that there is 
+            no shared state between the 'User' components and the
+            'member list' above. Each 'User' component is able to
+            independently verify its state as valid/invalid.
+        </p>
+
         <h2>users</h2>
         <ul class="user-list">
             ${users.map((user) => {
@@ -218,13 +225,6 @@ function TheApp () {
                 }
             })}
         </ul>
-
-        <p>
-            This is all running in client-side JS, but not that there is 
-            no shared state between the 'User' components and the
-            'member list' above. Each 'User' component is able to
-            independently verify its state as valid/invalid.
-        </p>
     </div>`
 }
 
