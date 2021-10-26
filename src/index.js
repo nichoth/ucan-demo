@@ -7,7 +7,7 @@ import * as ucan from 'ucans'
 
 function TheApp () {
     // a list like
-    // [ { name, keys } ]
+    // [ { name, keys, ucan? } ]
     const [users, setUsers] = useState([])
     const [serverKey, setServerKey] = useState(null)
     const [serverUcan, setServerUcan] = useState(null)
