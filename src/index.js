@@ -155,11 +155,12 @@ function TheApp () {
             We are using an invitation code here. This code would be sent 
             to the server along with the new user's DID. The server can then
             create a UCAN for this DID. Here we are using a server-owned UCAN 
-            as the 'parent' for the new UCAN we are creating. But in real-life
+            as the 'parent' for the new UCAN we are creating, just so we can
+            demo that process of creating 'child' ucans. But in real-life
             it could be better to just keep a list of DIDs that are allowed
             to use this server. That way you don't have to store a keypair
-            for this server anywhere (it's better to not risk losing 
-            a key because you don't even have a key.)
+            for this server anywhere (it's better to not risk losing a key
+            because you don't even have a key.)
         </p>
 
         <p>
