@@ -180,8 +180,8 @@ function TheApp () {
             UCANs allow you to use an existing UCAN as 'proof' for the new 
             UCAN you are creating. That means that the child UCAN can only
             have permissions that are equal or lesser than the parent UCAN.
-            So the 'capabilities' key must have a subset of the parent; it 
-            can't have anything not in the parent.
+            So the 'capabilities' key must be a subset of the parent; it 
+            can't have something not in the parent.
         </p>
 
         <hr />
