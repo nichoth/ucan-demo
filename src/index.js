@@ -171,7 +171,9 @@ function TheApp () {
             existing user would need to know a DID for the new user, and we 
             have no way of doing that since the new user may have never
             visited this website before, and we don't want the server to ever
-            be able to see the private key of a new user.
+            be able to see the private key of a new user, which is what you
+            would do if the server were to pre-emptively create an ID for 
+            the new user, and keep a map of invitation-code => user ID.
         </p>
 
         <p>
