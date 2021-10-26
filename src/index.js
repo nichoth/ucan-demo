@@ -158,7 +158,7 @@ function TheApp () {
             as the 'parent' for the new UCAN we are creating. But in real-life
             it could be better to just keep a list of DIDs that are allowed
             to use this server. That way you don't have to store a keypair
-            for this server anywhere (it's always better to not risk losing 
+            for this server anywhere (it's better to not risk losing 
             a key because you don't even have a key.)
         </p>
 
