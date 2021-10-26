@@ -2,7 +2,6 @@ import { render } from 'preact'
 import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
-import { isValid } from 'ucans'
 // import { toString } from 'uint8arrays/to-string'
 // import { fromString, toString } from 'uint8arrays'
 
