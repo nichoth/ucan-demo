@@ -6,11 +6,11 @@
   "scripts": {
     "copy": "mkdir -p ./public && cp src/index.html public/index.html",
     "start": "rm -rf public/* && npm run build && concurrently --kill-others \"npm run serve\" \"npm run sass-watch\"",
-    "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -dv",
+    "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -t uglifyify -dv",
     "build": "npm run copy && npm run build-js && npm run sass-build",
     "sass-build": "sass src/style/index.scss public/style.css",
     "sass-watch": "sass --watch src/style/index.scss public/style.css",
-    "build-js": "browserify -p esmify --debug src/index.js > public/bundle.js",
+    "build-js": "browserify -p esmify -t uglifyify --debug src/index.js | npx uglifyjs > public/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -23,7 +23,9 @@
     "budo": "^11.6.4",
     "concurrently": "^6.3.0",
     "esmify": "^2.1.1",
-    "sass": "^1.43.3"
+    "sass": "^1.43.3",
+    "uglify-js": "^3.14.2",
+    "uglifyify": "^5.0.2"
   },
   "repository": {
     "type": "git",
