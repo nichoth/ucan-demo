@@ -163,6 +163,19 @@ function TheApp () {
             can't have anything not in the parent.
         </p>
 
+        <hr />
+
+        <p>
+            In real life, you could choose to keep invitation codes hashed
+            with <code>bcrypt</code> in a JSON file in the repo, that way
+            they would be usable in a serverless setting without needing
+            to call a database. However, in this mode only the server 
+            operator would be able to add new invitation codes. We might
+            want anyone who is already a member to be able to create
+            invitations. In that case you would want to create a random code
+            and then hash it and save the hash to a database.
+        </p>
+
         <h1>The country club</h1>
 
         <div class="the-club">
