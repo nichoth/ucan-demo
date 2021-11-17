@@ -15,7 +15,7 @@ function TheApp () {
         // we are keeping a keypair that the server uses to create
         // it's own ucan in this model
         // then all the users have a ucan derived from this one
-        ucan.keypair.create(ucan.KeyType.Edwards)
+        ucan.EdKeypair.create()
             .then(async kp => {
                 console.log('server keypair', kp)
                 console.log('server did', kp.did())
@@ -52,7 +52,7 @@ function TheApp () {
 
     useEffect(() => {
         Promise.all(['alice', 'bob', 'carol'].map((username) => {
-            return ucan.keypair.create(ucan.KeyType.Edwards)
+            return ucan.EdKeypair.create()
                 .then((kp) => ({ username, keys: kp }))
         }))
             .then(_users => setUsers(_users))
