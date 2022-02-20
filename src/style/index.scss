@@ -35,6 +35,8 @@ button {
 }
 
 .user {
+    overflow: scroll;
+    max-height: 20vh;
     overflow-x: scroll;
     border: 1px solid;
     padding: 1rem;
@@ -43,6 +45,7 @@ button {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
     p {
         margin: initial;
     }
