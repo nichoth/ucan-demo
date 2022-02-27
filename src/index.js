@@ -147,6 +147,12 @@ function TheApp () {
 
     return html`<div>
         <p>
+            <a href="https://github.com/nichoth/ucan-demo">
+                github.com/nichoth/ucan-demo
+            </a>
+        </p>
+
+        <p>
             The thing about country clubs is that you need to be invited by
             someone who is already a member.
         </p>
@@ -231,7 +237,7 @@ function TheApp () {
         </div>
 
         <p>
-            This is all running in client-side JS, but not that there is 
+            This is all running in client-side JS, but note that there is 
             no shared state between the 'User' components and the
             'member list' above. Each 'User' component is able to
             independently verify its state as valid/invalid.
