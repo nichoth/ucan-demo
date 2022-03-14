@@ -3,6 +3,8 @@ import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
 
+console.log('ucan', ucan)
+
 function TheApp () {
     // a list like
     // [ { name, keys, ucan? } ]
@@ -278,6 +280,102 @@ function TheApp () {
 }
 
 
+
+
+
+
+// function decode (token) {
+//     console.log('token in here', token)
+//     console.log('aaaaaaaaaaaa', ucan)
+
+//     return ucan.validate(token, {
+//         checkIsExpired: false,
+//         checkIsTooEarly: false,
+//         checkSignature: false
+//     })
+//         .then(res => {
+//             console.log('ressssssss', res)
+//             return res
+//         })
+//         .catch(err => {
+//             console.log('errrrrr', err)
+//             return null
+//         })
+// }
+  
+
+
+
+// async function validate  (token) {
+//     const parsed = await decode(token)
+//     console.log('parsed', parsed)
+//     const [header, payload, signature] = token.split('.')
+
+//     if (parsed == null || header == null || payload == null ||
+//         signature == null) {
+//         return null
+//     }
+
+//     const notValidYet = ucan.isTooEarly(parsed)
+//     const active = !ucan.isExpired(parsed)
+//     const valid = await ucan.verifySignatureUtf8(`${header}.${payload}`,
+//         signature, parsed.payload.iss)
+//     const { validIssuer, validProofs } = await validateProofs(
+//         parsed.payload.prf, parsed.payload.iss)
+
+//     return {
+//         validation: {
+//             notValidYet,
+//             active,
+//             valid,
+//             validIssuer,
+//             validProofs
+//         },
+//         ucan: parsed
+//     }
+// }
+
+// const validateProofs = async (proofs, delegate) => {
+//     const promisedValidations = await Promise.all(proofs.map(proof => {
+//         return validateProof(proof, delegate)
+//     }))
+//     return promisedValidations.reduce(
+//         ({ validIssuer, validProofs }, validation) => ({
+//             validIssuer: validIssuer && validation.validIssuer,
+//             validProofs: validProofs && validation.validProof,
+//         }),
+//         { validIssuer: true, validProofs: true }
+//     )
+// }
+
+// async function validateProof (proof, delegate) {
+//     const token = await decode(proof)
+
+//     let validProof = false
+
+//     if (token !== null) {
+//         try {
+//             ucan.validate && await ucan.validate(proof)
+//             validProof = true
+//         } catch {
+//             validProof = false
+//         }
+//     }
+
+//     return {
+//         validIssuer: token?.payload.aud === delegate,
+//         validProof
+//     }
+// }
+
+
+
+
+
+
+
+
+
 // create an invitation is like
 // * alice is a member
 // * alice creates an invitation
@@ -292,7 +390,14 @@ function TheApp () {
 function User (props) {
     const { id, username, serverDID } = props
     var [valid, setValid] = useState(null)
+
+    console.log('in user', props.ucan)
+
     if (props.ucan) {
+        // validate(ucan.encode(props.ucan))
+        //     .then(validation => {
+        //         console.log('validation', validation)
+        //     })
         ucan.isValid(props.ucan).then(val => {
             var root = ucan.rootIssuer(ucan.encode(props.ucan))
             setValid(val && (root === serverDID))

@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "main": "src/index.js",
   "scripts": {
-    "copy": "mkdir -p ./public && cp src/index.html public/index.html",
+    "copy": "mkdir -p ./public && cp src/index.html public/",
     "start": "rm -rf public/* && npm run build && concurrently --kill-others \"npm run serve\" \"npm run sass-watch\"",
-    "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -t uglifyify -dv",
+    "serve": "budo src/index.js:bundle.js --dir=public/ --live --pushstate --open -- -p esmify -dv",
     "build": "npm run copy && npm run build-js && npm run sass-build",
     "sass-build": "sass src/style/index.scss public/style.css",
     "sass-watch": "sass --watch src/style/index.scss public/style.css",
-    "build-js": "browserify -p esmify -t uglifyify --debug src/index.js | npx uglifyjs > public/bundle.js",
+    "build-js": "browserify -p esmify --debug src/index.js > public/bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
