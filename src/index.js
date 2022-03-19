@@ -2,8 +2,34 @@ import { render } from 'preact'
 import { html } from 'htm/preact'
 import { useState, useEffect } from 'preact/hooks'
 import * as ucan from 'ucans'
+const base64 = require('./base64')
+
+// hasCapability<Cap>(semantics: CapabilitySemantics<Cap>, capability: CapabilityWithInfo<Cap>, ucan: Chained): CapabilityWithInfo<Cap> | false {
+import { hasCapability, capabilities } from 'ucans/dist/attenuation'
+
+// import { capabilities, CapabilityEscalation,
+//     CapabilitySemantics } from "ucans/dist/attenuation"
 
 console.log('ucan', ucan)
+
+function emailCaps (ucan) {
+    return capabilities(ucan, {
+        tryParsing (cap) {
+            if (typeof cap.email === "string" && cap.cap === "SEND") {
+                return {
+                    email: cap.email,
+                    cap: cap.cap
+                }
+            }
+            return null
+        },
+        
+        tryDelegating (parentCap, childCap) {
+            // potency is always "SEND" anyway, so doesn't need to be checked
+            return childCap.email === parentCap.email ? childCap : null
+        }
+    })
+}
 
 function TheApp () {
     // a list like
@@ -28,11 +54,12 @@ function TheApp () {
                     issuer: kp, // signing key
                     capabilities: [ // permissions for ucan
                         {
-                            "country-club": "country-club",
+                            "country-club": "pool",
                             "cap": "member"
                         },
                         {
-                            // what is this? (the `wnfs` key)
+                            // `wnfs` is a custom key,
+                            // `cap` is the capability for this ucan & key
                             "wnfs": "boris.fission.name/public/photos/",
                             "cap": "OVERWRITE"
                         },
@@ -281,20 +308,37 @@ function TheApp () {
 
 
 
+// follow the proofs until we are at the root level
+// copied from
+// https://github.com/ucan-wg/ts-ucan/blob/ae29f04afe37a19ef1780ed33aec10ef214fcb21/src/token.ts#L220
+function rootIssuer(ucan, level = 0) {
+    console.log('root iss', ucan)
+    const p = extractPayload(ucan, level)
+    console.log('ppppppppppppp', p)
+    if (p.prf) return rootIssuer(p.prf, level + 1)
+    return p.iss
+}
 
+function extractPayload(ucan, level) {
+    console.log('in extract pload', ucan)
+    console.log(base64.urlDecode(ucan.split('.')))
+    try {
+        return JSON.parse(base64.urlDecode(ucan.split('.')[1]))
+    } catch (_) {
+        const levelStr = `(${level} level${level === 1 ? "" : "s"})`
+        throw new Error(`Invalid UCAN ${levelStr} deep: \`${ucan}\` `)
+    }
+}
 
 
 // function decode (token) {
-//     console.log('token in here', token)
-//     console.log('aaaaaaaaaaaa', ucan)
-
 //     return ucan.validate(token, {
 //         checkIsExpired: false,
 //         checkIsTooEarly: false,
 //         checkSignature: false
 //     })
 //         .then(res => {
-//             console.log('ressssssss', res)
+//             console.log('ressssssss from ucan.validate', res)
 //             return res
 //         })
 //         .catch(err => {
@@ -302,71 +346,89 @@ function TheApp () {
 //             return null
 //         })
 // }
+
+
+const decode = async (token) => {
+    try {
+        const bla = await ucan.validate(token, {
+            checkIsExpired: false,
+            checkIsTooEarly: false,
+            checkSignature: false
+        })
+
+        console.log('blaaaaaaa', bla)
+
+        return bla
+    } catch {
+        return null
+    }
+}
   
 
 
 
-// async function validate  (token) {
-//     const parsed = await decode(token)
-//     console.log('parsed', parsed)
-//     const [header, payload, signature] = token.split('.')
+async function validate  (token) {
+    const parsed = await decode(token)
+    console.log('parsed', parsed)
+    const [header, payload, signature] = token.split('.')
 
-//     if (parsed == null || header == null || payload == null ||
-//         signature == null) {
-//         return null
-//     }
+    if (parsed == null || header == null || payload == null ||
+        signature == null) {
+        return null
+    }
 
-//     const notValidYet = ucan.isTooEarly(parsed)
-//     const active = !ucan.isExpired(parsed)
-//     const valid = await ucan.verifySignatureUtf8(`${header}.${payload}`,
-//         signature, parsed.payload.iss)
-//     const { validIssuer, validProofs } = await validateProofs(
-//         parsed.payload.prf, parsed.payload.iss)
+    const notValidYet = ucan.isTooEarly(parsed)
+    const active = !ucan.isExpired(parsed)
+    const valid = await ucan.verifySignatureUtf8(`${header}.${payload}`,
+        signature, parsed.payload.iss)
+    const { validIssuer, validProofs } = await validateProofs(
+        parsed.payload.prf, parsed.payload.iss)
 
-//     return {
-//         validation: {
-//             notValidYet,
-//             active,
-//             valid,
-//             validIssuer,
-//             validProofs
-//         },
-//         ucan: parsed
-//     }
-// }
+    return {
+        validation: {
+            notValidYet,
+            active,
+            valid,
+            validIssuer,
+            validProofs
+        },
+        ucan: parsed
+    }
+}
 
-// const validateProofs = async (proofs, delegate) => {
-//     const promisedValidations = await Promise.all(proofs.map(proof => {
-//         return validateProof(proof, delegate)
-//     }))
-//     return promisedValidations.reduce(
-//         ({ validIssuer, validProofs }, validation) => ({
-//             validIssuer: validIssuer && validation.validIssuer,
-//             validProofs: validProofs && validation.validProof,
-//         }),
-//         { validIssuer: true, validProofs: true }
-//     )
-// }
+const validateProofs = async (proofs, delegate) => {
+    const promisedValidations = await Promise.all(proofs.map(proof => {
+        return validateProof(proof, delegate)
+    }))
 
-// async function validateProof (proof, delegate) {
-//     const token = await decode(proof)
+    return promisedValidations.reduce(
+        ({ validIssuer, validProofs }, validation) => ({
+            validIssuer: validIssuer && validation.validIssuer,
+            validProofs: validProofs && validation.validProof,
+        }),
+        { validIssuer: true, validProofs: true }
+    )
+}
 
-//     let validProof = false
+async function validateProof (proof, delegate) {
+    const token = await decode(proof)
 
-//     if (token !== null) {
-//         try {
-//             ucan.validate && await ucan.validate(proof)
-//             validProof = true
-//         } catch {
-//             validProof = false
-//         }
-//     }
+    let validProof = false
 
-//     return {
-//         validIssuer: token?.payload.aud === delegate,
-//         validProof
-//     }
-// }
+    if (token !== null) {
+        try {
+            await ucan.validate(proof)
+            validProof = true
+        } catch {
+            validProof = false
+        }
+    }
+
+    return {
+        validIssuer: token?.payload.aud === delegate,
+        validProof
+    }
+}
 
 
 
@@ -391,17 +453,22 @@ function User (props) {
     const { id, username, serverDID } = props
     var [valid, setValid] = useState(null)
 
-    console.log('in user', props.ucan)
+    if (props.ucan) {
+        console.log('in user -- props.ucan', props.ucan)
+    }
 
     if (props.ucan) {
-        // validate(ucan.encode(props.ucan))
-        //     .then(validation => {
-        //         console.log('validation', validation)
-        //     })
-        ucan.isValid(props.ucan).then(val => {
-            var root = ucan.rootIssuer(ucan.encode(props.ucan))
-            setValid(val && (root === serverDID))
-        })
+        validate(ucan.encode(props.ucan))
+            .then(({ validation }) => {
+                console.log('validation', validation)
+                const root = rootIssuer(ucan.encode(props.ucan))
+                // setValid(validation.valid)
+                setValid(validation.valid && (root === serverDID))
+            })
+        // ucan.isValid(props.ucan).then(val => {
+        //     var root = ucan.rootIssuer(ucan.encode(props.ucan))
+        //     setValid(val && (root === serverDID))
+        // })
     }
 
     function redeemInv (ev) {

@@ -16,7 +16,7 @@
   "dependencies": {
     "htm": "^3.1.0",
     "preact": "^10.5.15",
-    "ucans": "^0.8.0"
+    "ucans": "https://github.com/ucan-wg/ts-ucan#e10bdeca26e663df72e4266ccd9d47f8ce100665"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
